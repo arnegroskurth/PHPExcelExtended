@@ -57,7 +57,7 @@ class Workbook {
     /**
      * @param \PHPExcel $PHPExcel
      *
-     * @throws \Exception
+     * @throws \PHPExcel_Exception
      */
     public function __construct(\PHPExcel $PHPExcel = null) {
 
@@ -66,7 +66,7 @@ class Workbook {
 
         $this->phpExcel = $PHPExcel;
 
-        if(is_null($this->phpExcel)) {
+        if($this->phpExcel === null) {
 
             $this->phpExcel = new \PHPExcel();
             $this->phpExcel->removeSheetByIndex(0);
@@ -85,7 +85,7 @@ class Workbook {
             // setup pdf export
             if(!\PHPExcel_Settings::setPdfRenderer(\PHPExcel_Settings::PDF_RENDERER_TCPDF, __DIR__ . '/../../../../vendor/tecnickcom/tcpdf')) {
 
-                throw new \Exception("Could not initialize PHPExcel PDF writer!");
+                throw new \PHPExcel_Exception('Could not initialize PHPExcel PDF writer!');
             }
 
 
@@ -98,18 +98,15 @@ class Workbook {
      * @param string $title
      *
      * @return Sheet
-     * @throws \Exception
      */
     public function getSheet($title) {
 
-        $sheet = $this->phpExcel->getSheetByName($title);
+        if($sheet = $this->phpExcel->getSheetByName($title)) {
 
-        if(empty($sheet)) {
-
-            throw new \Exception('Trying to get non-existing sheet!');
+            return new Sheet($this, $sheet);
         }
 
-        return new Sheet($this, $sheet);
+        return null;
     }
 
 
@@ -117,6 +114,7 @@ class Workbook {
      * @param string $title
      *
      * @return Sheet
+     * @throws \PHPExcel_Exception
      */
     public function createSheet($title) {
 
@@ -133,14 +131,14 @@ class Workbook {
      * @param string $fileName
      *
      * @return Response
-     * @throws \Exception
+     * @throws \PHPExcel_Exception
      */
     public function buildResponse($fileName = 'Export') {
 
-        $tmpFileName = tempnam("/tmp", "WorkbookExport_");
+        $tmpFileName = tempnam('/tmp', 'WorkbookExport_');
 
         if($tmpFileName === false) {
-            throw new \Exception("Could not create temp file.");
+            throw new \PHPExcel_Exception('Could not create temp file.');
         }
 
         $phpExcelWriter = new \PHPExcel_Writer_Excel2007($this->phpExcel);
@@ -150,11 +148,18 @@ class Workbook {
         $fileSize = filesize($tmpFileName);
 
 
-        // build response
-        $response = new Response(file_get_contents($tmpFileName));
-        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        $response->headers->set('Content-Disposition', sprintf('attachment; filename="%s.xlsx"', $fileName));
-        $response->headers->set('Content-Length', $fileSize);
+        try {
+
+            // build response
+            $response = new Response(file_get_contents($tmpFileName));
+            $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            $response->headers->set('Content-Disposition', sprintf('attachment; filename=\'%s.xlsx\'', $fileName));
+            $response->headers->set('Content-Length', $fileSize);
+        }
+        catch(\Exception $e) {
+
+            throw new \PHPExcel_Exception('Could not build response.', 0, $e);
+        }
 
         unlink($tmpFileName);
 
@@ -166,14 +171,14 @@ class Workbook {
      * @param string $fileName
      *
      * @return Response
-     * @throws \Exception
+     * @throws \PHPExcel_Exception
      */
     public function buildPdfResponse($fileName = 'Export') {
 
-        $tmpFileName = tempnam("/tmp", "WorkbookExport_");
+        $tmpFileName = tempnam('/tmp', 'WorkbookExport_');
 
         if($tmpFileName === false) {
-            throw new \Exception("Could not create temp file.");
+            throw new \PHPExcel_Exception('Could not create temp file.');
         }
 
 
@@ -190,10 +195,17 @@ class Workbook {
 
 
         // build response
-        $response = new Response(file_get_contents($tmpFileName));
-        $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', sprintf('attachment; filename="%s.pdf"', $fileName));
-        $response->headers->set('Content-Length', $fileSize);
+        try {
+
+            $response = new Response(file_get_contents($tmpFileName));
+            $response->headers->set('Content-Type', 'application/pdf');
+            $response->headers->set('Content-Disposition', sprintf('attachment; filename=\'%s.pdf\'', $fileName));
+            $response->headers->set('Content-Length', $fileSize);
+        }
+        catch(\Exception $e) {
+
+            throw new \PHPExcel_Exception('Could not build response.', 0, $e);
+        }
 
         unlink($tmpFileName);
 
@@ -206,7 +218,7 @@ class Workbook {
      *
      * @return \PHPExcel_Style_Conditional[]
      */
-    public static function getConditionalStylings(array $styles) {
+    public static function createConditionalStyles(array $styles) {
 
         $return = array();
 
@@ -232,7 +244,7 @@ class Workbook {
      */
     public static function getCoordinatesOrigin($coordinates) {
 
-        $parts = self::getCoordinatesRangeParts($coordinates);
+        $parts = static::getCoordinatesRangeParts($coordinates);
 
         return is_array($parts) ? $parts[0] : $coordinates;
     }
@@ -261,12 +273,13 @@ class Workbook {
      * @param string $coordinates
      *
      * @return int
+     * @throws \PHPExcel_Exception
      */
     public static function getCoordinatesRangeWidth($coordinates) {
 
-        $parts = self::getCoordinatesRangeParts($coordinates);
+        $parts = static::getCoordinatesRangeParts($coordinates);
 
-        return is_array($parts) ? self::alphaToColumnNumber(self::getCoordinatesColumn($parts[1])) - self::alphaToColumnNumber(self::getCoordinatesColumn($parts[0])) : 0;
+        return is_array($parts) ? static::alphaToColumnNumber(static::getCoordinatesColumn($parts[1])) - static::alphaToColumnNumber(static::getCoordinatesColumn($parts[0])) : 0;
     }
 
 
@@ -274,12 +287,13 @@ class Workbook {
      * @param string $coordinates
      *
      * @return int
+     * @throws \PHPExcel_Exception
      */
     public static function getCoordinatesRangeHeight($coordinates) {
 
-        $parts = self::getCoordinatesRangeParts($coordinates);
+        $parts = static::getCoordinatesRangeParts($coordinates);
 
-        return is_array($parts) ? self::getCoordinatesRow($parts[1]) - self::getCoordinatesRow($parts[0]) : 0;
+        return is_array($parts) ? static::getCoordinatesRow($parts[1]) - static::getCoordinatesRow($parts[0]) : 0;
     }
 
 
@@ -289,20 +303,21 @@ class Workbook {
      * @param int $rows
      *
      * @return string
+     * @throws \PHPExcel_Exception
      */
     public static function addToCoordinates($coordinates, $columns = 0, $rows = 0) {
 
-        $parts = self::getCoordinatesRangeParts($coordinates);
+        $parts = static::getCoordinatesRangeParts($coordinates);
 
         if(is_array($parts)) {
 
-            return sprintf('%s:%s', self::addToCoordinates($parts[0], $columns, $rows), self::addToCoordinates($parts[1], $columns, $rows));
+            return sprintf('%s:%s', static::addToCoordinates($parts[0], $columns, $rows), static::addToCoordinates($parts[1], $columns, $rows));
         }
 
         else {
 
-            $column = self::columnNumberToAlpha(self::alphaToColumnNumber(self::getCoordinatesColumn($coordinates)) + $columns);
-            $row = self::getCoordinatesRow($coordinates) + $rows;
+            $column = static::columnNumberToAlpha(static::alphaToColumnNumber(static::getCoordinatesColumn($coordinates)) + $columns);
+            $row = static::getCoordinatesRow($coordinates) + $rows;
 
             return sprintf('%s%s', $column, $row);
         }
@@ -315,10 +330,11 @@ class Workbook {
      * @param int $rows
      *
      * @return string
+     * @throws \PHPExcel_Exception
      */
     public static function addToCoordinatesRef(&$coordinates, $columns = 0, $rows = 0) {
 
-        return $coordinates = self::addToCoordinates($coordinates, $columns, $rows);
+        return $coordinates = static::addToCoordinates($coordinates, $columns, $rows);
     }
 
 
@@ -326,13 +342,15 @@ class Workbook {
      * @param string $coordinates
      * @param int $columns
      * @param int $rows
+     *
      * @return string
+     * @throws \PHPExcel_Exception
      */
     public static function addToCoordinatesRefAfter(&$coordinates, $columns = 0, $rows = 0) {
 
         $return = $coordinates;
 
-        self::addToCoordinatesRef($coordinates, $columns, $rows);
+        static::addToCoordinatesRef($coordinates, $columns, $rows);
 
         return $return;
     }
@@ -343,11 +361,11 @@ class Workbook {
      * @param string $column
      * @param int $row
      * @return string
-     * @throws \Exception
+     * @throws \PHPExcel_Exception
      */
     public static function modifyCoordinates($coordinates, $column = null, $row = null) {
 
-        $parts = self::getCoordinatesParts($coordinates);
+        $parts = static::getCoordinatesParts($coordinates);
 
         $parts[0] = $column ?: $parts[0];
         $parts[1] = $row ?: $parts[1];
@@ -360,7 +378,7 @@ class Workbook {
      * @param string $coordinates
      *
      * @return array
-     * @throws \Exception
+     * @throws \PHPExcel_Exception
      */
     public static function getCoordinatesParts($coordinates) {
 
@@ -368,11 +386,11 @@ class Workbook {
 
             return array(
                 $match[1],
-                intval($match[2])
+                (int)$match[2]
             );
         }
 
-        throw new \Exception("Malformed coordinates.");
+        throw new \PHPExcel_Exception('Malformed coordinates.');
     }
 
 
@@ -380,10 +398,11 @@ class Workbook {
      * @param $coordinates
      *
      * @return string
+     * @throws \PHPExcel_Exception
      */
     public static function getCoordinatesColumn($coordinates) {
 
-        return self::getCoordinatesParts($coordinates)[0];
+        return static::getCoordinatesParts($coordinates)[0];
     }
 
 
@@ -391,10 +410,11 @@ class Workbook {
      * @param $coordinates
      *
      * @return int
+     * @throws \PHPExcel_Exception
      */
     public static function getCoordinatesRow($coordinates) {
 
-        return self::getCoordinatesParts($coordinates)[1];
+        return static::getCoordinatesParts($coordinates)[1];
     }
 
 
@@ -407,12 +427,12 @@ class Workbook {
      */
     public static function columnNumberToAlpha($n) {
 
-        for($r = ""; $n >= 0; $n = intval($n / 26) - 1) {
+        for($return = ''; $n >= 0; $n = (int)($n/26) - 1) {
 
-            $r = chr($n % 26 + 0x41) . $r;
+            $return = chr($n % 26 + 0x41) . $return;
         }
 
-        return $r;
+        return $return;
     }
 
 

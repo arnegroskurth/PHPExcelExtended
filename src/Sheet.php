@@ -121,6 +121,7 @@ class Sheet {
      * @param int $additionalRows
      *
      * @return $this
+     * @throws \PHPExcel_Exception
      */
     public function setBackground($color = 'FFFFFFFF', $toCells = 'AZ100', $additionalColumns = 100, $additionalRows = 100) {
 

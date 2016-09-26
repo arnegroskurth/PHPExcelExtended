@@ -91,7 +91,7 @@ class Cells {
      * @param array $style
      *
      * @return $this
-     * @throws \Exception
+     * @throws \PHPExcel_Exception
      */
     public function applyStyle(array $style) {
 
@@ -105,6 +105,7 @@ class Cells {
      * @param bool $centered
      *
      * @return $this
+     * @throws \PHPExcel_Exception
      */
     public function styleCentered($centered = true) {
 
@@ -118,6 +119,7 @@ class Cells {
      * @param bool $bold
      *
      * @return $this
+     * @throws \PHPExcel_Exception
      */
     public function styleBold($bold = true) {
 
@@ -132,6 +134,7 @@ class Cells {
      * @param string $style
      *
      * @return $this
+     * @throws \PHPExcel_Exception
      */
     public function styleWithBorder($color = 'FF000000', $style = \PHPExcel_Style_Border::BORDER_THIN) {
 
@@ -152,7 +155,7 @@ class Cells {
 
     /**
      * @return $this
-     * @throws \Exception
+     * @throws \PHPExcel_Exception
      */
     public function stylesAsFloat() {
 
@@ -168,7 +171,7 @@ class Cells {
 
     /**
      * @return $this
-     * @throws \Exception
+     * @throws \PHPExcel_Exception
      */
     public function styleAsDate() {
 
@@ -184,7 +187,7 @@ class Cells {
 
     /**
      * @return $this
-     * @throws \Exception
+     * @throws \PHPExcel_Exception
      */
     public function styleAsMonthOfYear() {
 
@@ -200,7 +203,7 @@ class Cells {
 
     /**
      * @return $this
-     * @throws \Exception
+     * @throws \PHPExcel_Exception
      */
     public function styleAsCurrency() {
 
@@ -218,6 +221,7 @@ class Cells {
      * @param int $height
      *
      * @return $this
+     * @throws \PHPExcel_Exception
      */
     public function setRowHeight($height) {
 
@@ -237,6 +241,7 @@ class Cells {
      * @param bool $wrapText
      *
      * @return $this
+     * @throws \PHPExcel_Exception
      */
     public function setWrapText($wrapText) {
 
@@ -250,7 +255,7 @@ class Cells {
      * @param string $coordinates
      *
      * @return \PHPExcel_Cell
-     * @throws \Exception
+     * @throws \PHPExcel_Exception
      */
     protected function getPHPExcelCell($coordinates = null) {
 
@@ -262,6 +267,7 @@ class Cells {
      * @param string $coordinates
      *
      * @return \PHPExcel_Style
+     * @throws \PHPExcel_Exception
      */
     protected function getPHPExcelStyle($coordinates = null) {
 
