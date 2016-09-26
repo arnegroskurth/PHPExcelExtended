@@ -1,0 +1,22 @@
+{
+  "name": "arne-groskurth/phpexcel-extended",
+  "description": "PHPExcelExtended is a wrapper for the PHPOffice/PHPExcel package providing common functionality.",
+  "keywords": ["phpexcel", "wrapper"],
+  "homepage": "https://github.com/arnegroskurth/PHPExcelExtended",
+  "authors": [
+    {
+      "name": "Arne Groskurth",
+      "email": "arne.groskurth@milchundzucker.de"
+    }
+  ],
+  "license": "MIT",
+  "require": {
+    "phpoffice/phpexcel": "1.*",
+    "symfony/http-foundation": "^3.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "ArneGroskurth\\PHPExcelExtended\\": "src/"
+    }
+  }
+}
