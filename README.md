@@ -12,6 +12,15 @@ $ composer require arne-groskurth/phpexcel-extended
 ```
 
 
+## Examples
+
+The `example` directory contains example scripts that can be served with PHP's built in webserver:
+
+```bash
+$ composer serve-examples
+```
+
+
 ## License
 
 MIT License

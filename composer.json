@@ -18,5 +18,8 @@
     "psr-4": {
       "ArneGroskurth\\PHPExcelExtended\\": "src/"
     }
+  },
+  "scripts": {
+    "serve-examples": "php -S localhost:8000 -t ./examples"
   }
 }
