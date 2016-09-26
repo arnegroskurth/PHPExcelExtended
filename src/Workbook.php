@@ -5,6 +5,11 @@ namespace ArneGroskurth\PHPExcelExtended;
 use Symfony\Component\HttpFoundation\Response;
 
 
+/**
+ * This class represents a workbook and additionally provides common functions e.g. to convert between different coordinate formats.
+ *
+ * @package ArneGroskurth\PHPExcelExtended
+ */
 class Workbook {
 
     /**
@@ -83,10 +88,10 @@ class Workbook {
 
 
             // setup pdf export
-            if(!\PHPExcel_Settings::setPdfRenderer(\PHPExcel_Settings::PDF_RENDERER_TCPDF, __DIR__ . '/../../../../vendor/tecnickcom/tcpdf')) {
+            /*if(!\PHPExcel_Settings::setPdfRenderer(\PHPExcel_Settings::PDF_RENDERER_TCPDF, __DIR__ . '/../../../../vendor/tecnickcom/tcpdf')) {
 
                 throw new \PHPExcel_Exception('Could not initialize PHPExcel PDF writer!');
-            }
+            }*/
 
 
             $setUp = true;
@@ -153,7 +158,7 @@ class Workbook {
             // build response
             $response = new Response(file_get_contents($tmpFileName));
             $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            $response->headers->set('Content-Disposition', sprintf('attachment; filename=\'%s.xlsx\'', $fileName));
+            $response->headers->set('Content-Disposition', sprintf('inline; filename=\'%s.xlsx\'', $fileName));
             $response->headers->set('Content-Length', $fileSize);
         }
         catch(\Exception $e) {
@@ -199,7 +204,7 @@ class Workbook {
 
             $response = new Response(file_get_contents($tmpFileName));
             $response->headers->set('Content-Type', 'application/pdf');
-            $response->headers->set('Content-Disposition', sprintf('attachment; filename=\'%s.pdf\'', $fileName));
+            $response->headers->set('Content-Disposition', sprintf('inline; filename=\'%s.pdf\'', $fileName));
             $response->headers->set('Content-Length', $fileSize);
         }
         catch(\Exception $e) {

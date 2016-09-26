@@ -3,6 +3,11 @@
 namespace ArneGroskurth\PHPExcelExtended;
 
 
+/**
+ * This class represents a cell selection on a given sheet and mainly provides styling and formatting functionality.
+ *
+ * @package ArneGroskurth\PHPExcelExtended
+ */
 class Cells {
 
     /**
@@ -102,28 +107,60 @@ class Cells {
 
 
     /**
-     * @param bool $centered
-     *
      * @return $this
      * @throws \PHPExcel_Exception
      */
-    public function styleCentered($centered = true) {
+    public function styleCentered() {
 
-        $this->getPHPExcelStyle()->getAlignment()->setHorizontal($centered ? \PHPExcel_Style_Alignment::HORIZONTAL_CENTER : \PHPExcel_Style_Alignment::HORIZONTAL_GENERAL);
+        $this->getPHPExcelStyle()->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
         return $this;
     }
 
 
     /**
-     * @param bool $bold
-     *
      * @return $this
      * @throws \PHPExcel_Exception
      */
-    public function styleBold($bold = true) {
+    public function styleBold() {
 
-        $this->getPHPExcelStyle()->getFont()->setBold($bold);
+        $this->getPHPExcelStyle()->getFont()->setBold(true);
+
+        return $this;
+    }
+
+
+    /**
+     * @return $this
+     * @throws \PHPExcel_Exception
+     */
+    public function styleItalic() {
+
+        $this->getPHPExcelStyle()->getFont()->setItalic(true);
+
+        return $this;
+    }
+
+
+    /**
+     * @return $this
+     * @throws \PHPExcel_Exception
+     */
+    public function styleUnderlined() {
+
+        $this->getPHPExcelStyle()->getFont()->setUnderline(true);
+
+        return $this;
+    }
+
+
+    /**
+     * @return $this
+     * @throws \PHPExcel_Exception
+     */
+    public function styleStrikethrough() {
+
+        $this->getPHPExcelStyle()->getFont()->setStrikethrough(true);
 
         return $this;
     }

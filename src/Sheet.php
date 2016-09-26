@@ -3,12 +3,17 @@
 namespace ArneGroskurth\PHPExcelExtended;
 
 
+/**
+ * This class represents a sheet within a workbook.
+ *
+ * @package ArneGroskurth\PHPExcelExtended
+ */
 class Sheet {
 
     /**
      * @var Workbook
      */
-    protected $excelReporter;
+    protected $workbook;
 
     /**
      * @var \PHPExcel_Worksheet
@@ -21,7 +26,7 @@ class Sheet {
      */
     public function getWorkbook() {
 
-        return $this->excelReporter;
+        return $this->workbook;
     }
 
     
@@ -35,17 +40,19 @@ class Sheet {
 
 
     /**
-     * @param Workbook $excelReporter
+     * @param Workbook $workbook
      * @param \PHPExcel_Worksheet $worksheet
      */
-    public function __construct(Workbook $excelReporter, \PHPExcel_Worksheet $worksheet) {
+    public function __construct(Workbook $workbook, \PHPExcel_Worksheet $worksheet) {
 
-        $this->excelReporter = $excelReporter;
+        $this->workbook = $workbook;
         $this->worksheet = $worksheet;
     }
 
 
     /**
+     * Provides an Excel-like
+     *
      * @param string $coordinates
      *
      * @return Cells
