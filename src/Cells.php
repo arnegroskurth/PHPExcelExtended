@@ -9,6 +9,9 @@ namespace ArneGroskurth\PHPExcelExtended;
  * @package ArneGroskurth\PHPExcelExtended
  */
 class Cells {
+    
+    use CoordinateMath;
+    
 
     /**
      * @var Sheet
@@ -67,25 +70,25 @@ class Cells {
         // set row of values
         if(is_array($value)) {
 
-            $currentCoordinates = Workbook::getCoordinatesOrigin($this->coordinates);
+            $currentCoordinates = $this->getCoordinatesOrigin($this->coordinates);
 
             foreach($value as $val) {
 
                 $this->getPHPExcelCell($currentCoordinates)->setValue($val);
 
-                $currentCoordinates = Workbook::addToCoordinates($currentCoordinates, 1);
+                $currentCoordinates = $this->addToCoordinates($currentCoordinates, 1);
             }
         }
 
         // merge cells if range coordinates given and set single value
         else {
 
-            if(Workbook::getCoordinatesRangeWidth($this->coordinates) > 0) {
+            if($this->getCoordinatesRangeWidth($this->coordinates) > 0) {
 
                 $this->sheet->getWorksheet()->mergeCells($this->coordinates);
             }
 
-            $this->getPHPExcelCell(Workbook::getCoordinatesOrigin($this->coordinates))->setValue($value);
+            $this->getPHPExcelCell($this->getCoordinatesOrigin($this->coordinates))->setValue($value);
         }
 
         return $this;
@@ -262,10 +265,10 @@ class Cells {
      */
     public function setRowHeight($height) {
 
-        $rangeParts = Workbook::getCoordinatesRangeParts($this->coordinates);
-        $row = Workbook::getCoordinatesRow(is_array($rangeParts) ? $rangeParts[0] : $rangeParts);
+        $rangeParts = $this->getCoordinatesRangeParts($this->coordinates);
+        $row = $this->getCoordinatesRowNumber(is_array($rangeParts) ? $rangeParts[0] : $rangeParts);
 
-        foreach(range($row, $row + Workbook::getCoordinatesRangeHeight($this->coordinates)) as $row) {
+        foreach(range($row, $row + $this->getCoordinatesRangeHeight($this->coordinates)) as $row) {
 
             $this->sheet->setRowHeight($row, $height);
         }

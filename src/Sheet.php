@@ -10,6 +10,9 @@ namespace ArneGroskurth\PHPExcelExtended;
  */
 class Sheet {
 
+    use CoordinateMath;
+    
+
     /**
      * @var Workbook
      */
@@ -99,7 +102,7 @@ class Sheet {
         return $this->setColumnWidths(
             array_combine(
                 range($from, $to),
-                array_fill(0, Workbook::getCoordinatesRangeWidth(sprintf('%s1:%s1', $from, $to)) + 1, $width)
+                array_fill(0, $this->getCoordinatesRangeWidth(sprintf('%s1:%s1', $from, $to)) + 1, $width)
             )
         );
     }
@@ -132,7 +135,7 @@ class Sheet {
      */
     public function setBackground($color = 'FFFFFFFF', $toCells = 'AZ100', $additionalColumns = 100, $additionalRows = 100) {
 
-        $this->getCells(sprintf('A1:%s', Workbook::addToCoordinates($toCells, $additionalColumns, $additionalRows)))->applyStyle(array(
+        $this->getCells(sprintf('A1:%s', $this->addToCoordinates($toCells, $additionalColumns, $additionalRows)))->applyStyle(array(
             'fill' => array(
                 'type' => \PHPExcel_Style_Fill::FILL_SOLID,
                 'startcolor' => array(
