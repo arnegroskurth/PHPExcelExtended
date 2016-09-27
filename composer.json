@@ -21,5 +21,8 @@
   },
   "scripts": {
     "serve-examples": "php -S localhost:8000 -t ./examples"
+  },
+  "config": {
+    "process-timeout": 0
   }
 }
