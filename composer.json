@@ -11,6 +11,7 @@
   ],
   "license": "MIT",
   "require": {
+    "php": "^5.3|^7.0",
     "phpoffice/phpexcel": "1.*",
     "arne-groskurth/temp-file": "^1.1"
   },
