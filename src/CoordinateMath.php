@@ -47,7 +47,7 @@ trait CoordinateMath {
 
         $parts = $this->getCoordinatesRangeParts($coordinates);
 
-        return is_array($parts) ? $this->columnNameToColumnNumber($this->getCoordinatesColumnName($parts[1])) - $this->columnNameToColumnNumber($this->getCoordinatesColumnName($parts[0])) : 0;
+        return is_array($parts) ? ($this->columnNameToColumnNumber($this->getCoordinatesColumnName($parts[1])) - $this->columnNameToColumnNumber($this->getCoordinatesColumnName($parts[0])) + 1) : 1;
     }
 
 
@@ -61,7 +61,7 @@ trait CoordinateMath {
 
         $parts = $this->getCoordinatesRangeParts($coordinates);
 
-        return is_array($parts) ? $this->getCoordinatesRowNumber($parts[1]) - $this->getCoordinatesRowNumber($parts[0]) : 0;
+        return is_array($parts) ? ($this->getCoordinatesRowNumber($parts[1]) - $this->getCoordinatesRowNumber($parts[0]) + 1) : 1;
     }
 
 
@@ -126,17 +126,18 @@ trait CoordinateMath {
 
     /**
      * @param string $coordinates
-     * @param string $column
-     * @param int $row
+     * @param string $columnName
+     * @param int $rowNumber
+     *
      * @return string
      * @throws \PHPExcel_Exception
      */
-    protected function modifyCoordinates($coordinates, $column = null, $row = null) {
+    protected function modifyCoordinates($coordinates, $columnName = null, $rowNumber = null) {
 
         $parts = $this->getCoordinatesParts($coordinates);
 
-        $parts[0] = $column ?: $parts[0];
-        $parts[1] = $row ?: $parts[1];
+        $parts[0] = $columnName ?: $parts[0];
+        $parts[1] = $rowNumber ?: $parts[1];
 
         return sprintf('%s%d', $parts[0], $parts[1]);
     }
