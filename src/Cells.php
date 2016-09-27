@@ -83,7 +83,7 @@ class Cells {
         // merge cells if range coordinates given and set single value
         else {
 
-            if($this->getCoordinatesRangeWidth($this->coordinates) > 0) {
+            if($this->getCoordinatesRangeWidth($this->coordinates) > 1) {
 
                 $this->sheet->getWorksheet()->mergeCells($this->coordinates);
             }
@@ -92,6 +92,16 @@ class Cells {
         }
 
         return $this;
+    }
+
+
+    /**
+     * @return mixed
+     * @throws \PHPExcel_Exception
+     */
+    public function getValue() {
+
+        return $this->getPHPExcelCell()->getValue();
     }
 
 
