@@ -12,6 +12,9 @@
   "license": "MIT",
   "require": {
     "phpoffice/phpexcel": "1.*",
+    "arne-groskurth/temp-file": "^1.1"
+  },
+  "suggest": {
     "symfony/http-foundation": "^3.1"
   },
   "autoload": {

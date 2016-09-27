@@ -2,6 +2,7 @@
 
 namespace ArneGroskurth\PHPExcelExtended;
 
+use ArneGroskurth\TempFile\TempFile;
 use Symfony\Component\HttpFoundation\Response;
 
 
@@ -138,37 +139,25 @@ class Workbook {
      * @return Response
      * @throws \PHPExcel_Exception
      */
-    public function buildResponse($fileName = 'Export') {
-
-        $tmpFileName = tempnam('/tmp', 'WorkbookExport_');
-
-        if($tmpFileName === false) {
-            throw new \PHPExcel_Exception('Could not create temp file.');
-        }
-
-        $phpExcelWriter = new \PHPExcel_Writer_Excel2007($this->phpExcel);
-        $phpExcelWriter->setPreCalculateFormulas(true);
-        $phpExcelWriter->save($tmpFileName);
-
-        $fileSize = filesize($tmpFileName);
-
+    public function buildResponse($fileName = 'Export.xlsx') {
 
         try {
 
-            // build response
-            $response = new Response(file_get_contents($tmpFileName));
-            $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            $response->headers->set('Content-Disposition', sprintf('inline; filename=\'%s.xlsx\'', $fileName));
-            $response->headers->set('Content-Length', $fileSize);
+            $tempFile = new TempFile();
+            $tempFile->accessPath(function($path) {
+
+                $phpExcelWriter = new \PHPExcel_Writer_Excel2007($this->phpExcel);
+                $phpExcelWriter->setPreCalculateFormulas(true);
+                $phpExcelWriter->save($path);
+            });
+
+            return $tempFile->buildResponse($fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
         }
         catch(\Exception $e) {
 
             throw new \PHPExcel_Exception('Could not build response.', 0, $e);
         }
-
-        unlink($tmpFileName);
-
-        return $response;
     }
 
 
@@ -178,14 +167,7 @@ class Workbook {
      * @return Response
      * @throws \PHPExcel_Exception
      */
-    public function buildPdfResponse($fileName = 'Export') {
-
-        $tmpFileName = tempnam('/tmp', 'WorkbookExport_');
-
-        if($tmpFileName === false) {
-            throw new \PHPExcel_Exception('Could not create temp file.');
-        }
-
+    public function buildPdfResponse($fileName = 'Export.pdf') {
 
         $this->phpExcel->getSheet(0)->getPageSetup()
             ->setOrientation(\PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE)
@@ -193,28 +175,22 @@ class Workbook {
             ->setFitToPage()
         ;
 
-        $phpExcelWriter = new \PHPExcel_Writer_PDF($this->phpExcel);
-        $phpExcelWriter->save($tmpFileName);
-
-        $fileSize = filesize($tmpFileName);
-
-
-        // build response
         try {
 
-            $response = new Response(file_get_contents($tmpFileName));
-            $response->headers->set('Content-Type', 'application/pdf');
-            $response->headers->set('Content-Disposition', sprintf('inline; filename=\'%s.pdf\'', $fileName));
-            $response->headers->set('Content-Length', $fileSize);
+            $tempFile = new TempFile();
+            $tempFile->accessPath(function($path) {
+
+                $phpExcelWriter = new \PHPExcel_Writer_PDF($this->phpExcel);
+                $phpExcelWriter->save($path);
+            });
+
+            return $tempFile->buildResponse($fileName, 'application/pdf');
+
         }
         catch(\Exception $e) {
 
             throw new \PHPExcel_Exception('Could not build response.', 0, $e);
         }
-
-        unlink($tmpFileName);
-
-        return $response;
     }
 
 
