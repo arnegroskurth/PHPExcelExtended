@@ -114,6 +114,18 @@ class CoordinateMathTest extends \PHPUnit_Framework_TestCase {
     /**
      * @depends testAddToCoordinates
      */
+    public function testGetRangeCoordinates() {
+
+        static::assertEquals('A1:C4', $this->getRangeCoordinates('A1', 2, 3));
+
+        // todo: should be possible
+        //static::assertEquals('B2:C3', $this->getRangeCoordinates('C3', -1, -1));
+    }
+
+
+    /**
+     * @depends testAddToCoordinates
+     */
     public function testAddToCoordinatesRef() {
 
         $coordinates = 'B3';

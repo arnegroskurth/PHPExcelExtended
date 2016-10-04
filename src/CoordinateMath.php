@@ -93,6 +93,21 @@ trait CoordinateMath {
 
 
     /**
+     * Constructs a coordinate range from a starting point and column- and row-based offsets.
+     *
+     * @param string $startCoordinates
+     * @param int $columns
+     * @param int $rows
+     *
+     * @return string
+     */
+    protected function getRangeCoordinates($startCoordinates, $columns = 0, $rows = 0) {
+
+        return sprintf('%s:%s', $startCoordinates, $this->addToCoordinates($startCoordinates, $columns, $rows));
+    }
+
+
+    /**
      * @param string $coordinates
      * @param int $columns
      * @param int $rows
