@@ -135,6 +135,35 @@ class Cells {
      * @return $this
      * @throws \PHPExcel_Exception
      */
+    public function styleCenteredVertically() {
+
+        $this->getPHPExcelStyle()->getAlignment()->setVertical(\PHPExcel_Style_Alignment::VERTICAL_CENTER);
+
+        return $this;
+    }
+
+
+    /**
+     * @param string $color
+     * @param string $fillType
+     *
+     * @return $this
+     */
+    public function styleBackground($color = \PHPExcel_Style_Color::COLOR_WHITE, $fillType = \PHPExcel_Style_Fill::FILL_SOLID) {
+
+        $fill = $this->getPHPExcelStyle()->getFill();
+
+        $fill->setStartColor(new \PHPExcel_Style_Color($color));
+        $fill->setFillType($fillType);
+
+        return $this;
+    }
+
+
+    /**
+     * @return $this
+     * @throws \PHPExcel_Exception
+     */
     public function styleBold() {
 
         $this->getPHPExcelStyle()->getFont()->setBold(true);
@@ -293,7 +322,7 @@ class Cells {
      * @return $this
      * @throws \PHPExcel_Exception
      */
-    public function setWrapText($wrapText) {
+    public function setWrapText($wrapText = true) {
 
         $this->sheet->getWorksheet()->getStyle($this->coordinates)->getAlignment()->setWrapText($wrapText);
 
