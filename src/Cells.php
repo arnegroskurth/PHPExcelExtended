@@ -64,6 +64,8 @@ class Cells {
         if($value instanceof \DateTime) {
 
             $value = \PHPExcel_Shared_Date::PHPToExcel($value);
+
+            $this->formatAsDate();
         }
 
 
@@ -74,9 +76,7 @@ class Cells {
 
             foreach($value as $val) {
 
-                $this->getPHPExcelCell($currentCoordinates)->setValue($val);
-
-                $currentCoordinates = $this->addToCoordinates($currentCoordinates, 1);
+                $this->sheet->getCells($this->addToCoordinatesRefAfter($currentCoordinates, 1))->setValue($val);
             }
         }
 
@@ -102,6 +102,19 @@ class Cells {
     public function getValue() {
 
         return $this->getPHPExcelCell()->getValue();
+    }
+
+
+    /**
+     * @param string $format
+     *
+     * @return $this
+     */
+    public function formatAsDate($format = 'dd.mm.yyyy') {
+
+        $this->getPHPExcelStyle()->getNumberFormat()->setFormatCode($format);
+
+        return $this;
     }
 
 
