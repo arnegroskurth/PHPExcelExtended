@@ -115,7 +115,7 @@ class Sheet {
         return $this->setColumnWidths(
             array_combine(
                 range($from, $to),
-                array_fill(0, $this->getCoordinatesRangeWidth(sprintf('%s1:%s1', $from, $to)) + 1, $width)
+                array_fill(0, $this->getCoordinatesRangeWidth(sprintf('%s1:%s1', $from, $to)), $width)
             )
         );
     }
