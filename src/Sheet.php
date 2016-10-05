@@ -54,6 +54,19 @@ class Sheet {
 
 
     /**
+     * @param int $zoomScale
+     *
+     * @return $this
+     */
+    public function setZoomScale($zoomScale) {
+
+        $this->worksheet->getSheetView()->setZoomScale($zoomScale);
+
+        return $this;
+    }
+
+
+    /**
      * Provides an Excel-like
      *
      * @param string $coordinates
