@@ -3,7 +3,6 @@
 namespace ArneGroskurth\PHPExcelExtended;
 
 use ArneGroskurth\TempFile\TempFile;
-use Symfony\Component\HttpFoundation\Response;
 
 
 /**
@@ -19,14 +18,14 @@ class Workbook {
     protected $phpExcel;
 
     /**
-     * @var array
+     * @var bool
      */
-    protected $defaultStyle = array(
-        'font' => array(
-            'name' => 'Calibri',
-            'size' => 10
-        )
-    );
+    protected static $setUp = false;
+
+    /**
+     * @var bool
+     */
+    protected static $isPdfAvailable = false;
 
 
     /**
@@ -43,59 +42,56 @@ class Workbook {
      *
      * @return $this
      */
-    public function setDefaultStyle(array $styles) {
+    public function applyDefaultStyle(array $styles) {
 
-        $this->defaultStyle = $styles;
+        $this->phpExcel->getDefaultStyle()->applyFromArray($styles);
 
         return $this;
     }
 
 
     /**
-     * @return array
-     */
-    public function getDefaultStyle() {
-
-        return $this->defaultStyle;
-    }
-
-
-    /**
-     * @param \PHPExcel $PHPExcel
+     * @param bool $applyDefaultStyle
      *
      * @throws \PHPExcel_Exception
      */
-    public function __construct(\PHPExcel $PHPExcel = null) {
+    public function __construct($applyDefaultStyle = true) {
 
-        static $setUp = false;
+        if(!static::$setUp) {
 
+            static::$setUp = true;
 
-        $this->phpExcel = $PHPExcel;
+            // setup cache
+            \PHPExcel_Settings::setCacheStorageMethod(\PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp, array(
+                'memoryCacheSize' => '512MB'
+            ));
 
-        if($this->phpExcel === null) {
+            // setup pdf export
+            if(class_exists('\TCPDF')) {
 
-            $this->phpExcel = new \PHPExcel();
-            $this->phpExcel->removeSheetByIndex(0);
-            $this->phpExcel->getDefaultStyle()->applyFromArray($this->defaultStyle);
+                $reflection = new \ReflectionClass('\TCPDF');
+
+                if(!\PHPExcel_Settings::setPdfRenderer(\PHPExcel_Settings::PDF_RENDERER_TCPDF, dirname($reflection->getFileName()))) {
+
+                    throw new \PHPExcel_Exception('Error setting up TCPDF as pdf rendering library!');
+                }
+
+                static::$isPdfAvailable = true;
+            }
         }
 
 
-        if(!$setUp) {
+        $this->phpExcel = new \PHPExcel();
+        $this->phpExcel->removeSheetByIndex(0);
 
-            // setup cache
-            $cacheMethod = \PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;
-            $cacheSettings = array('memoryCacheSize' => '512MB');
-            \PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
+        if($applyDefaultStyle) {
 
-
-            // setup pdf export
-            /*if(!\PHPExcel_Settings::setPdfRenderer(\PHPExcel_Settings::PDF_RENDERER_TCPDF, __DIR__ . '/../../../../vendor/tecnickcom/tcpdf')) {
-
-                throw new \PHPExcel_Exception('Could not initialize PHPExcel PDF writer!');
-            }*/
-
-
-            $setUp = true;
+            $this->applyDefaultStyle(array(
+                'font' => array(
+                    'name' => 'Calibri',
+                    'size' => 10
+                )
+            ));
         }
     }
 
@@ -125,21 +121,19 @@ class Workbook {
     public function createSheet($title) {
 
         $sheet = $this->phpExcel->addSheet(new \PHPExcel_Worksheet($this->phpExcel));
-
         $sheet->setTitle($title);
-        $sheet->getSheetView()->setZoomScale(80);
 
         return $this->getSheet($title);
     }
 
 
     /**
-     * @param string $fileName
+     * Renders the workbook as excel file and returns it as a temporary file.
      *
-     * @return Response
+     * @return TempFile
      * @throws \PHPExcel_Exception
      */
-    public function buildResponse($fileName = 'Export.xlsx') {
+    public function writeToTempFile() {
 
         try {
 
@@ -151,8 +145,7 @@ class Workbook {
                 $phpExcelWriter->save($path);
             });
 
-            return $tempFile->buildResponse($fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-
+            return $tempFile;
         }
         catch(\Exception $e) {
 
@@ -164,33 +157,86 @@ class Workbook {
     /**
      * @param string $fileName
      *
-     * @return Response
+     * @return \Symfony\Component\HttpFoundation\Response
      * @throws \PHPExcel_Exception
      */
-    public function buildPdfResponse($fileName = 'Export.pdf') {
+    public function buildResponse($fileName = 'Export.xlsx') {
 
-        $this->phpExcel->getSheet(0)->getPageSetup()
-            ->setOrientation(\PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE)
-            ->setPaperSize(\PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4)
-            ->setFitToPage()
-        ;
+        return $this->writeToTempFile()->buildResponse($fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    }
+
+
+    /**
+     * Renders the workbook as pdf file and returns it as a temporary file.
+     *
+     * @param int $paperSize
+     * @param string $orientation
+     *
+     * @return TempFile
+     * @throws \PHPExcel_Exception
+     */
+    public function writePdfToTempFile($paperSize = \PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4, $orientation = \PHPExcel_Worksheet_PageSetup::ORIENTATION_PORTRAIT) {
+
+        if(!self::$isPdfAvailable) {
+
+            throw new \PHPExcel_Exception('No PDF writing library available. (Installing tecnickcom/tcpdf is suggested)');
+        }
+
+
+        // copy workbook and apply pageSetup settings
+        if($paperSize !== null || $orientation !== null) {
+
+            $workbook = $this->phpExcel->copy();
+
+            foreach($workbook->getAllSheets() as $sheet) {
+
+                $pageSetup = $sheet->getPageSetup();
+
+                if($paperSize !== null) {
+
+                    $pageSetup->setPaperSize($paperSize);
+                }
+
+                if($orientation !== null) {
+
+                    $pageSetup->setOrientation($orientation);
+                }
+            }
+        }
+
+        else {
+
+            $workbook = $this->phpExcel;
+        }
+
 
         try {
 
             $tempFile = new TempFile();
-            $tempFile->accessPath(function($path) {
+            $tempFile->accessPath(function($path) use ($workbook) {
 
-                $phpExcelWriter = new \PHPExcel_Writer_PDF($this->phpExcel);
+                $phpExcelWriter = new \PHPExcel_Writer_PDF($workbook);
                 $phpExcelWriter->save($path);
             });
 
-            return $tempFile->buildResponse($fileName, 'application/pdf');
-
+            return $tempFile;
         }
         catch(\Exception $e) {
 
             throw new \PHPExcel_Exception('Could not build response.', 0, $e);
         }
+    }
+
+
+    /**
+     * @param string $fileName
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \PHPExcel_Exception
+     */
+    public function buildPdfResponse($fileName = 'Export.pdf') {
+
+        return $this->writePdfToTempFile()->buildResponse($fileName, 'application/pdf');
     }
 
 
