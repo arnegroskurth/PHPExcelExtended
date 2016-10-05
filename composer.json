@@ -1,7 +1,7 @@
 {
   "name": "arne-groskurth/phpexcel-extended",
   "description": "PHPExcelExtended is a wrapper for the PHPOffice/PHPExcel package providing common functionality.",
-  "keywords": ["phpexcel", "wrapper"],
+  "keywords": ["phpexcel", "wrapper", "xlsx", "excel", "spreadsheet"],
   "homepage": "https://github.com/arnegroskurth/PHPExcelExtended",
   "authors": [
     {
