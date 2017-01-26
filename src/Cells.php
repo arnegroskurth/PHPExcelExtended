@@ -317,12 +317,25 @@ class Cells implements \IteratorAggregate {
      */
     public function setRowHeight($height) {
 
-        $rangeParts = $this->getCoordinatesRangeParts($this->coordinates);
-        $row = $this->getCoordinatesRowNumber(is_array($rangeParts) ? $rangeParts[0] : $rangeParts);
+        foreach ($this->getIterator(CellIterator::ITERATE_ROWS) as $cell)
+        {
+            $this->sheet->setRowHeight($this->getCoordinatesRowNumber($cell->getCoordinates()), $height);
+        }
 
-        foreach(range($row, $row + $this->getCoordinatesRangeHeight($this->coordinates)) as $row) {
+        return $this;
+    }
 
-            $this->sheet->setRowHeight($row, $height);
+
+    /**
+     * @param float $width
+     *
+     * @return $this
+     */
+    public function setColumnWidth($width) {
+
+        foreach ($this->getIterator(CellIterator::ITERATE_COLUMNS) as $cell)
+        {
+            $this->sheet->setColumnWidth($this->getCoordinatesColumnName($cell->getCoordinates()), $width);
         }
 
         return $this;
@@ -357,11 +370,13 @@ class Cells implements \IteratorAggregate {
 
 
     /**
+     * @param int $mode
+     *
      * @return CellIterator
      */
-    public function getIterator()
+    public function getIterator($mode = CellIterator::ITERATE_ALL)
     {
-        return new CellIterator($this->coordinates);
+        return new CellIterator($this, $mode);
     }
 
 

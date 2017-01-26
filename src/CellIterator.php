@@ -6,25 +6,42 @@ class CellIterator extends \ArrayIterator
 {
     use CoordinateMath;
 
+    const ITERATE_COLUMNS = 1;
+    const ITERATE_ROWS = 2;
+    const ITERATE_ALL = 3;
+
     /**
-     * @param string $coordinates
+     * @param Cells $cells
+     * @param int $mode
      */
-    public function __construct($coordinates)
+    public function __construct(Cells $cells, $mode = self::ITERATE_ALL)
     {
-        $cells = array();
+        $array = array();
 
-        $origin = $this->getCoordinatesOrigin($coordinates);
-        $rangeWidth = $this->getCoordinatesRangeWidth($coordinates);
-        $rangeHeight = $this->getCoordinatesRangeHeight($coordinates);
+        $origin = $this->getCoordinatesOrigin($cells->getCoordinates());
+        $rangeWidth = $this->getCoordinatesRangeWidth($cells->getCoordinates());
+        $rangeHeight = $this->getCoordinatesRangeHeight($cells->getCoordinates());
 
-        for ($row = 0; $row < ($rangeHeight - 1); $row++)
+        for ($row = 0; $row < $rangeHeight; $row++)
         {
-            for ($column = 0; $column < ($rangeWidth - 1); $column++)
+            for ($column = 0; $column < $rangeWidth; $column++)
             {
-                $cells[] = $this->addToCoordinates($origin, $column, $row);
+                $array[] = $cells->getSheet()->getCells($this->addToCoordinates($origin, $column, $row));
+
+                if ($column === 0 && !($mode & self::ITERATE_COLUMNS)) break;
             }
+
+            if ($row === 0 && !($mode & self::ITERATE_ROWS)) break;
         }
 
-        parent::__construct($cells);
+        parent::__construct($array);
+    }
+
+    /**
+     * @return Cells
+     */
+    public function current()
+    {
+        return parent::current();
     }
 }
