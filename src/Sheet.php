@@ -113,11 +113,11 @@ class Sheet {
     /**
      * @param string $from
      * @param string $to
-     * @param int $width
+     * @param float $width
      *
      * @return Sheet
      */
-    public function setSameColumnWidths($from, $to, $width = -1) {
+    public function setSameColumnWidths($from, $to, $width = -1.0) {
 
         return $this->setColumnWidths(
             array_combine(
@@ -130,13 +130,27 @@ class Sheet {
 
     /**
      * @param int $row
-     * @param int $height
+     * @param float $height
      *
      * @return $this
      */
     public function setRowHeight($row, $height) {
 
         $this->worksheet->getRowDimension($row)->setRowHeight($height);
+
+        return $this;
+    }
+
+
+    /**
+     * @param string $column
+     * @param float $width
+     *
+     * @return $this
+     */
+    public function setColumnWidth($column, $width) {
+
+        $this->worksheet->getColumnDimension($column)->setWidth($width);
 
         return $this;
     }
