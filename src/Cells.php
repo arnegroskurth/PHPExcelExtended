@@ -8,7 +8,7 @@ namespace ArneGroskurth\PHPExcelExtended;
  *
  * @package ArneGroskurth\PHPExcelExtended
  */
-class Cells {
+class Cells implements \IteratorAggregate {
     
     use CoordinateMath;
     
@@ -353,6 +353,15 @@ class Cells {
         $this->sheet->getWorksheet()->getStyle($this->coordinates)->getAlignment()->setTextRotation($value);
 
         return $this;
+    }
+
+
+    /**
+     * @return CellIterator
+     */
+    public function getIterator()
+    {
+        return new CellIterator($this->coordinates);
     }
 
 
