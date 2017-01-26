@@ -344,6 +344,19 @@ class Cells {
 
 
     /**
+     * @param int $value
+     *
+     * @return $this
+     */
+    public function setTextRotation($value)
+    {
+        $this->sheet->getWorksheet()->getStyle($this->coordinates)->getAlignment()->setTextRotation($value);
+
+        return $this;
+    }
+
+
+    /**
      * @param string $coordinates
      *
      * @return \PHPExcel_Cell
