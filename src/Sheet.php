@@ -90,7 +90,7 @@ class Sheet {
         // sequential array indices are replaced by column names starting with firstColumn
         if(array_keys($widths) === range(0, count($widths) - 1)) {
 
-            $widths = array_combine(range($firstColumn, $this->columnNumberToColumnName(count($widths) - 1)), $widths);
+            $widths = array_combine(range($firstColumn, $this->columnNumberToColumnName($this->columnNameToColumnNumber($firstColumn) + count($widths) - 1)), $widths);
         }
 
         foreach($widths as $column => $width) {
