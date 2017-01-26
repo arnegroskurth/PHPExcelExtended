@@ -87,7 +87,7 @@ class Sheet {
      */
     public function setColumnWidths(array $widths, $firstColumn = 'A') {
 
-        // sequential array indices are replaced by column names starting w
+        // sequential array indices are replaced by column names starting with firstColumn
         if(array_keys($widths) === range(0, count($widths) - 1)) {
 
             $widths = array_combine(range($firstColumn, $this->columnNumberToColumnName(count($widths) - 1)), $widths);
@@ -144,13 +144,20 @@ class Sheet {
 
     /**
      * @param string $column
-     * @param float $width
+     * @param float|bool $width
      *
      * @return $this
      */
     public function setColumnWidth($column, $width) {
 
-        $this->worksheet->getColumnDimension($column)->setWidth($width);
+        if (is_bool($width))
+        {
+            $this->worksheet->getColumnDimension($column)->setAutoSize($width);
+        }
+        else
+        {
+            $this->worksheet->getColumnDimension($column)->setWidth($width);
+        }
 
         return $this;
     }

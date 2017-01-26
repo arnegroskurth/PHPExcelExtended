@@ -327,7 +327,7 @@ class Cells implements \IteratorAggregate {
 
 
     /**
-     * @param float $width
+     * @param float|bool $width
      *
      * @return $this
      */
