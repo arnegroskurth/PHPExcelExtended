@@ -2,6 +2,11 @@
 
 namespace ArneGroskurth\PHPExcelExtended;
 
+/**
+ * Class CellIterator
+ *
+ * @package ArneGroskurth\PHPExcelExtended
+ */
 class CellIterator extends \ArrayIterator
 {
     use CoordinateMath;
