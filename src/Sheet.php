@@ -81,16 +81,25 @@ class Sheet {
 
     /**
      * @param array $widths
-     * @param string $firstColumn
+     * @param string $firstColumnName
      *
      * @return $this
      */
-    public function setColumnWidths(array $widths, $firstColumn = 'A') {
+    public function setColumnWidths(array $widths, $firstColumnName = 'A') {
 
         // sequential array indices are replaced by column names starting with firstColumn
         if(array_keys($widths) === range(0, count($widths) - 1)) {
 
-            $widths = array_combine(range($firstColumn, $this->columnNumberToColumnName($this->columnNameToColumnNumber($firstColumn) + count($widths) - 1)), $widths);
+            $firstColumnNumber = $this->columnNameToColumnNumber($firstColumnName);
+            $lastColumnNumber = $firstColumnNumber + count($widths) - 1;
+
+            $newWidths = array();
+            foreach (range($firstColumnNumber, $lastColumnNumber) as $index => $columnNumber) {
+
+                $newWidths[$this->columnNumberToColumnName($columnNumber)] = $widths[$index];
+            }
+
+            $widths = $newWidths;
         }
 
         foreach($widths as $column => $width) {
