@@ -33,7 +33,8 @@
     }
   },
   "scripts": {
-    "serve-examples": "php -S localhost:8000 -t ./examples"
+    "serve-examples": "php -S localhost:8000 -t ./examples",
+    "test": "phpunit --colors=always --verbose"
   },
   "config": {
     "process-timeout": 0
